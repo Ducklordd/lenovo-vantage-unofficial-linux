@@ -766,7 +766,6 @@ class VantageGUI(QMainWindow):
         self.btn_group = QButtonGroup(self)
         self.btn_group.setExclusive(True)
         
-        # "Donate" removed from UI entirely as requested
         tabs = [tr("Dashboard"), tr("Power"), tr("Battery"), tr("Actions"), tr("Settings"), tr("About")]
         for idx, t in enumerate(tabs):
             if t == "About":
@@ -790,7 +789,7 @@ class VantageGUI(QMainWindow):
             
         main_layout.addWidget(self.sidebar)
 
-        # Right-side content area: changes bar + page stack
+        
         right_widget = QWidget()
         right_widget.setObjectName("MainWidget")
         right_layout = QVBoxLayout(right_widget)
@@ -879,7 +878,7 @@ class VantageGUI(QMainWindow):
             lbl_sub.setObjectName("RowSubtitle")
             lbl_sub.setWordWrap(False)
             lbl_sub.setTextFormat(Qt.TextFormat.PlainText)
-            # A2/A5/A8: prevent wrapping — fixed height, expanding width
+            
             lbl_sub.setFixedHeight(16)
             lbl_sub.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             lbl_sub.setMinimumWidth(0)
@@ -1145,7 +1144,7 @@ class VantageGUI(QMainWindow):
         tdp_outer.setContentsMargins(20, 15, 20, 15)
         tdp_outer.setSpacing(10)
 
-        # Header row: title + enable checkbox
+        
         tdp_header = QHBoxLayout()
         tdp_title_v = QVBoxLayout()
         tdp_title_v.setSpacing(2)
@@ -1205,10 +1204,7 @@ class VantageGUI(QMainWindow):
         tdp_outer.addWidget(tdp_grid_w)
         layout.addWidget(tdp_row)
         
-        # Display Section — A10: all rows disabled, hide section entirely
-        # lbl_disp = QLabel("Display")
-        # lbl_disp.setObjectName("SectionTitle")
-        # layout.addWidget(lbl_disp)
+       
 
         dr = QComboBox()
         dr.addItems(["Native"])
@@ -1226,10 +1222,7 @@ class VantageGUI(QMainWindow):
         ds_row.setVisible(False)
         layout.addWidget(ds_row)
         
-        # System Controls — A10: all rows disabled, hide section entirely
-        # lbl_sys = QLabel("System Controls")
-        # lbl_sys.setObjectName("SectionTitle")
-        # layout.addWidget(lbl_sys)
+       
 
         kb = QComboBox()
         kb.addItems(["Off"])
@@ -1752,9 +1745,9 @@ def main():
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("/usr/share/icons/hicolor/scalable/apps/vantage.png"))
 
-    # ── First-run language selection ───────────────────────────────
+   
     if is_first_run():
-        # Detect system theme before creating the dialog so it looks native
+        
         detected = detect_system_theme()
         save_theme(detected)
         dlg = LanguageDialog()
