@@ -60,7 +60,7 @@ QFrame#SettingsRow {
     border-radius: 8px;
     min-height: 64px;
 }
-QFrame#SettingsRow:disabled {
+QFrame#SettingsRow[rowDisabled="true"] {
     background-color: #181818;
     border: 1px solid #222222;
 }
@@ -75,10 +75,10 @@ QFrame#SettingsRow QLabel#RowSubtitle {
     font-size: 12px;
     background: transparent;
 }
-QFrame#SettingsRow:disabled QLabel#RowTitle {
+QFrame#SettingsRow[rowDisabled="true"] QLabel#RowTitle {
     color: #888888;
 }
-QFrame#SettingsRow:disabled QLabel#RowSubtitle {
+QFrame#SettingsRow[rowDisabled="true"] QLabel#RowSubtitle {
     color: #666666;
 }
 QLabel#TdpFieldLabel {
@@ -86,7 +86,7 @@ QLabel#TdpFieldLabel {
     font-size: 11px;
     font-weight: 600;
 }
-QFrame#SettingsRow:disabled QLabel#TdpFieldLabel {
+QFrame#SettingsRow[rowDisabled="true"] QLabel#TdpFieldLabel {
     color: #4a4a4a;
 }
 QLabel#BatStatTitle {
@@ -100,6 +100,9 @@ QLabel#BatStatValue {
     font-weight: bold;
     color: #ffffff;
     background: transparent;
+}
+QLabel#BatStatValue[statKey="health"] {
+    color: #27ae60;
 }
 QLabel {
     color: #ffffff;
@@ -200,6 +203,9 @@ QProgressBar::chunk {
     border-radius: 4px;
     background-color: #27ae60;
     min-width: 2px;
+}
+QProgressBar[zero="true"]::chunk {
+    background-color: #2a2a2a;
 }
 QComboBox:disabled::drop-down {
     border-left: 1px solid #333333;
@@ -368,7 +374,7 @@ QFrame#SettingsRow {
     border-radius: 8px;
     min-height: 64px;
 }
-QFrame#SettingsRow:disabled {
+QFrame#SettingsRow[rowDisabled="true"] {
     background-color: #f0f0f0;
     border: 1px solid #d8d8d8;
 }
@@ -383,10 +389,10 @@ QFrame#SettingsRow QLabel#RowSubtitle {
     font-size: 12px;
     background: transparent;
 }
-QFrame#SettingsRow:disabled QLabel#RowTitle {
+QFrame#SettingsRow[rowDisabled="true"] QLabel#RowTitle {
     color: #777777;
 }
-QFrame#SettingsRow:disabled QLabel#RowSubtitle {
+QFrame#SettingsRow[rowDisabled="true"] QLabel#RowSubtitle {
     color: #999999;
 }
 QLabel#TdpFieldLabel {
@@ -394,7 +400,7 @@ QLabel#TdpFieldLabel {
     font-size: 11px;
     font-weight: 600;
 }
-QFrame#SettingsRow:disabled QLabel#TdpFieldLabel {
+QFrame#SettingsRow[rowDisabled="true"] QLabel#TdpFieldLabel {
     color: #bbbbbb;
 }
 QLabel#BatStatTitle {
@@ -408,6 +414,9 @@ QLabel#BatStatValue {
     font-weight: bold;
     color: #1a1a1a;
     background: transparent;
+}
+QLabel#BatStatValue[statKey="health"] {
+    color: #27ae60;
 }
 QLabel {
     color: #1a1a1a;
@@ -508,6 +517,9 @@ QProgressBar::chunk {
     border-radius: 4px;
     background-color: #27ae60;
     min-width: 2px;
+}
+QProgressBar[zero="true"]::chunk {
+    background-color: #d0d0d0;
 }
 QComboBox:disabled::drop-down {
     border-left: 1px solid #cccccc;

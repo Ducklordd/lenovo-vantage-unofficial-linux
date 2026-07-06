@@ -13,9 +13,20 @@ from gui.widgets import create_row, create_scroll_page, set_row_state
 def create_power_page(gui):
     page, layout = create_scroll_page(tr("Power & System"))
 
-    lbl_pwr = QLabel(tr("Power"))
-    lbl_pwr.setObjectName("SectionTitle")
-    layout.addWidget(lbl_pwr)
+    _build_power_section(gui, layout)
+    _build_gpu_section(gui, layout)
+    _build_fan_section(gui, layout)
+    _build_tdp_section(gui, layout)
+    _build_fn_lock_section(gui, layout)
+
+    layout.addStretch()
+    return page
+
+
+def _build_power_section(gui, layout):
+    lbl = QLabel(tr("Power"))
+    lbl.setObjectName("SectionTitle")
+    layout.addWidget(lbl)
 
     pm = QComboBox()
     pm.addItems(["Quiet", "Balance", "Performance"])
@@ -53,10 +64,11 @@ def create_power_page(gui):
     )
     layout.addWidget(gui.rows['fs'])
 
-    # GPU Section
-    lbl_gpu = QLabel(tr("GPU"))
-    lbl_gpu.setObjectName("SectionTitle")
-    layout.addWidget(lbl_gpu)
+
+def _build_gpu_section(gui, layout):
+    lbl = QLabel(tr("GPU"))
+    lbl.setObjectName("SectionTitle")
+    layout.addWidget(lbl)
 
     gm = QComboBox()
     gm.addItems(["Hybrid", "Integrated", "Dedicated"])
@@ -83,10 +95,11 @@ def create_power_page(gui):
     set_row_state(oc_row, False)
     layout.addWidget(oc_row)
 
-    # Thermal / Fan
-    lbl_fan = QLabel(tr("Thermal / Fan Control"))
-    lbl_fan.setObjectName("SectionTitle")
-    layout.addWidget(lbl_fan)
+
+def _build_fan_section(gui, layout):
+    lbl = QLabel(tr("Thermal / Fan Control"))
+    lbl.setObjectName("SectionTitle")
+    layout.addWidget(lbl)
 
     fm = QComboBox()
     fm.addItems(["Standard", "Super Silent", "Dust Cleaning", "Performance"])
@@ -97,7 +110,8 @@ def create_power_page(gui):
     )
     layout.addWidget(gui.rows['fan_main'])
 
-    # ── Custom TDP (RyzenAdj) ─────────────────────────────────────────
+
+def _build_tdp_section(gui, layout):
     tdp_row = QFrame()
     tdp_row.setObjectName("SettingsRow")
     gui.rows['tdp'] = tdp_row
@@ -130,26 +144,8 @@ def create_power_page(gui):
     tdp_grid.setContentsMargins(0, 0, 0, 0)
     tdp_grid.setSpacing(18)
 
-    def _make_spin(label_text):
-        col = QVBoxLayout()
-        col.setSpacing(4)
-        lbl = QLabel(label_text)
-        lbl.setObjectName("TdpFieldLabel")
-        spin = QSpinBox()
-        spin.setRange(10000, 100000)
-        spin.setSingleStep(1000)
-        spin.setSuffix(" mW")
-        spin.setFixedWidth(160)
-        spin.setEnabled(False)
-        spin.valueChanged.connect(gui._on_tdp_spin_change)
-        gui.tdp_spins.append(spin)
-        col.addWidget(lbl)
-        col.addWidget(spin)
-        return col
-
-    tdp_grid.addLayout(_make_spin("STAPM"))
-    tdp_grid.addLayout(_make_spin("Fast Limit"))
-    tdp_grid.addLayout(_make_spin("Slow Limit"))
+    for label_text in ("STAPM", "Fast Limit", "Slow Limit"):
+        tdp_grid.addLayout(_make_tdp_spin(gui, label_text))
     tdp_grid.addStretch()
 
     gui.btn_apply_tdp = QPushButton(tr("Apply TDP"))
@@ -163,29 +159,29 @@ def create_power_page(gui):
     tdp_outer.addWidget(tdp_grid_w)
     layout.addWidget(tdp_row)
 
-    # Hidden rows (managed by OS, not by this tool)
-    for title_key, sub_key, items in [
-        ("Resolution", "Resolution subtitle", ["Native"]),
-        ("Scaling (DPI)", "Scaling (DPI) subtitle", ["Native"]),
-        ("Keyboard Backlight", "Keyboard Backlight subtitle", ["Off"]),
-        ("Touchpad Toggle", "Touchpad Toggle subtitle", ["On"]),
-        ("Windows Key Lock", "Windows Key Lock subtitle", ["Off"]),
-    ]:
-        combo = QComboBox()
-        combo.addItems(items)
-        combo.setEnabled(False)
-        row = create_row(tr(title_key), tr(sub_key), combo)
-        set_row_state(row, False)
-        row.setVisible(False)
-        layout.addWidget(row)
 
-    # Fn Lock — visible and functional
+def _make_tdp_spin(gui, label_text):
+    col = QVBoxLayout()
+    col.setSpacing(4)
+    lbl = QLabel(label_text)
+    lbl.setObjectName("TdpFieldLabel")
+    spin = QSpinBox()
+    spin.setRange(10000, 100000)
+    spin.setSingleStep(1000)
+    spin.setSuffix(" mW")
+    spin.setFixedWidth(160)
+    spin.setEnabled(False)
+    spin.valueChanged.connect(gui._on_tdp_spin_change)
+    gui.tdp_spins.append(spin)
+    col.addWidget(lbl)
+    col.addWidget(spin)
+    return col
+
+
+def _build_fn_lock_section(gui, layout):
     fn = QComboBox()
     fn.addItems(["Off", "On"])
     gui.fn_combos.append(fn)
     fn.currentIndexChanged.connect(gui.auto_apply_change)
     gui.rows['fn'] = create_row(tr("Fn Lock"), tr("Fn Lock subtitle"), fn)
     layout.addWidget(gui.rows['fn'])
-
-    layout.addStretch()
-    return page

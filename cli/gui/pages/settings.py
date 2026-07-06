@@ -12,11 +12,18 @@ from gui.widgets import create_row, create_scroll_page, set_row_state
 def create_settings_page(gui):
     page, layout = create_scroll_page(tr("Settings"))
 
-    lbl_gen = QLabel(tr("General"))
-    lbl_gen.setObjectName("SectionTitle")
-    layout.addWidget(lbl_gen)
+    _build_general_section(gui, layout)
+    _build_behavior_section(gui, layout)
 
-    # ── Language selector ───────────────────────────────────────────
+    layout.addStretch()
+    return page
+
+
+def _build_general_section(gui, layout):
+    lbl = QLabel(tr("General"))
+    lbl.setObjectName("SectionTitle")
+    layout.addWidget(lbl)
+
     lang = QComboBox()
     lang.addItems([tr("System Default"), tr("English"), tr("Russian")])
     current_lang = get_locale()
@@ -27,33 +34,26 @@ def create_settings_page(gui):
     else:
         lang.setCurrentIndex(0)
     lang.currentIndexChanged.connect(lambda idx: _on_language_changed(gui, idx))
-    lang_row = create_row(tr("Language"), tr("Language subtitle"), lang)
-    layout.addWidget(lang_row)
+    layout.addWidget(create_row(tr("Language"), tr("Language subtitle"), lang))
 
-    # ── Theme selector ──────────────────────────────────────────────
     theme = QComboBox()
     theme.addItems([tr("Dark Theme"), tr("Light Theme"), tr("System Default")])
-    if gui.current_theme == "light":
-        theme.setCurrentIndex(1)
-    else:
-        theme.setCurrentIndex(0)
+    theme.setCurrentIndex(1 if gui.current_theme == "light" else 0)
     theme.currentIndexChanged.connect(lambda idx: _on_theme_changed(gui, idx))
-    theme_row = create_row(tr("Theme"), tr("Theme subtitle"), theme)
-    layout.addWidget(theme_row)
+    layout.addWidget(create_row(tr("Theme"), tr("Theme subtitle"), theme))
 
-    lbl_beh = QLabel(tr("Behavior"))
-    lbl_beh.setObjectName("SectionTitle")
-    layout.addWidget(lbl_beh)
 
-    # ── System Tray toggle ─────────────────────────────────────────
+def _build_behavior_section(gui, layout):
+    lbl = QLabel(tr("Behavior"))
+    lbl.setObjectName("SectionTitle")
+    layout.addWidget(lbl)
+
     tray_check = QCheckBox()
     tray_check.setChecked(load_tray())
     if not gui.tray_available:
         tray_check.setEnabled(False)
         tray_check.setChecked(False)
-    tray_check.toggled.connect(
-        lambda checked: gui.set_tray_enabled(checked)
-    )
+    tray_check.toggled.connect(lambda checked: gui.set_tray_enabled(checked))
     tray_row = create_row(
         tr("System Tray"), tr("System Tray subtitle"), tray_check
     )
@@ -71,21 +71,13 @@ def create_settings_page(gui):
     bl = QComboBox()
     bl.addItems(["Disabled"])
     bl.setEnabled(False)
-    bl_row = create_row(
-        tr("Boot Logo"), tr("Boot Logo subtitle"), bl
-    )
+    bl_row = create_row(tr("Boot Logo"), tr("Boot Logo subtitle"), bl)
     set_row_state(bl_row, False)
     layout.addWidget(bl_row)
 
-    layout.addStretch()
-    return page
-
 
 def _on_language_changed(gui, index):
-    if index == 1:
-        save_locale("en")
-        set_locale("en")
-    elif index == 2:
+    if index == 2:
         save_locale("ru")
         set_locale("ru")
     else:
@@ -98,9 +90,6 @@ def _on_language_changed(gui, index):
 
 
 def _on_theme_changed(gui, index):
-    if index == 1:
-        gui.current_theme = "light"
-    else:
-        gui.current_theme = "dark"
+    gui.current_theme = "light" if index == 1 else "dark"
     gui._apply_theme(gui.current_theme)
     save_theme(gui.current_theme)

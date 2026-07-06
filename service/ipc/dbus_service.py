@@ -1,6 +1,7 @@
 import dbus
 import dbus.service
 
+
 class VantageService(dbus.service.Object):
     BUS_NAME = "org.lenovo.Vantage"
     OBJ_PATH = "/org/lenovo/Vantage"
@@ -108,7 +109,7 @@ class VantageService(dbus.service.Object):
     def GetSensors(self):
         from features.sensors import get_cpu_temp, get_gpu_temp, get_cpu_usage, get_gpu_usage, get_fan_rpm
         from features.battery import get_battery_info
-        
+
         info = {
             "cpu_temp": dbus.Double(get_cpu_temp()),
             "gpu_temp": dbus.Double(get_gpu_temp()),
@@ -116,14 +117,14 @@ class VantageService(dbus.service.Object):
             "gpu_usage": dbus.Double(get_gpu_usage()),
             "fan_rpm": dbus.Int32(get_fan_rpm())
         }
-        
+
         bat_info = get_battery_info()
         for k, v in bat_info.items():
             if isinstance(v, int):
                 info[f"bat_{k}"] = dbus.Int32(v)
             else:
                 info[f"bat_{k}"] = dbus.String(v)
-                
+
         return dbus.Dictionary(info, signature='sv')
 
     @dbus.service.method(BUS_NAME, in_signature="", out_signature="a{sa{sv}}")

@@ -49,6 +49,7 @@ def create_battery_page(gui):
         lbl_title.setObjectName("BatStatTitle")
         lbl_val = QLabel("N/A")
         lbl_val.setObjectName("BatStatValue")
+        lbl_val.setProperty("statKey", key)
 
         v = QVBoxLayout()
         v.addWidget(lbl_title)

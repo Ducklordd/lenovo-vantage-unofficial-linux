@@ -2,13 +2,13 @@
 import sys
 import os
 
-# Add parent dir to path so we can import features and ipc
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import dbus
 import dbus.mainloop.glib
 from gi.repository import GLib
 from ipc.dbus_service import VantageService
+
 
 def main():
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -38,6 +38,7 @@ def main():
         print("Exiting...")
         engine.stop()
         sys.exit(0)
+
 
 if __name__ == "__main__":
     if os.geteuid() != 0:

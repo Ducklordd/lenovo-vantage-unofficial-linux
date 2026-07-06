@@ -11,125 +11,92 @@ from gui.widgets import create_row, create_scroll_page
 
 
 def create_dashboard_page(gui):
-    """Build the dashboard page.  ``gui`` is the VantageGUI main window."""
     page, layout = create_scroll_page(tr("Dashboard"))
 
     lbl_model = QLabel(get_laptop_model())
     lbl_model.setObjectName("DeviceSubtitle")
     layout.addWidget(lbl_model)
 
-    # ── System Monitoring ────────────────────────────────────────────
+    layout.addWidget(_build_monitor_card(gui))
+    layout.addWidget(_build_quick_controls(gui))
+
+    layout.addStretch()
+    return page
+
+
+def _build_monitor_card(gui):
     dash_group = QFrame()
     dash_group.setObjectName("DashboardCard")
     dash_layout = QHBoxLayout(dash_group)
     dash_layout.setContentsMargins(25, 25, 25, 25)
     dash_layout.setSpacing(40)
 
-    # CPU
+    dash_layout.addWidget(_build_cpu_monitor(gui))
+    dash_layout.addWidget(_build_gpu_monitor(gui))
+    return dash_group
+
+
+def _build_cpu_monitor(gui):
     cpu_w = QWidget()
     cpu_l = QGridLayout(cpu_w)
     cpu_l.setContentsMargins(0, 0, 0, 0)
     cpu_l.setVerticalSpacing(18)
+
     cpu_title = QLabel(tr("CPU"))
     cpu_title.setObjectName("MonitorTitle")
     cpu_l.addWidget(cpu_title, 0, 0, 1, 3)
 
-    cpu_lbl_util = QLabel(tr("Utilization"))
-    cpu_lbl_util.setObjectName("MonitorLabel")
-    cpu_l.addWidget(cpu_lbl_util, 1, 0)
-    gui.pb_cpu = QProgressBar()
-    gui.pb_cpu.setFixedHeight(8)
-    gui.pb_cpu.setRange(0, 100)
-    cpu_l.addWidget(gui.pb_cpu, 1, 1)
-    gui.lbl_cpu_util = QLabel("0.0%")
-    gui.lbl_cpu_util.setAlignment(
-        Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-    )
-    cpu_l.addWidget(gui.lbl_cpu_util, 1, 2)
+    _add_monitor_row(gui, cpu_l, 1, "pb_cpu", "lbl_cpu_util", tr("Utilization"), "0.0%", 100)
+    _add_monitor_row(gui, cpu_l, 2, "pb_cput", "lbl_cpu_temp", tr("Temperature"), "0.0 °C", 100)
+    _add_monitor_row(gui, cpu_l, 3, "pb_cpuf", "lbl_cpu_fan", tr("Fan"), "— RPM", 5000)
 
-    cpu_lbl_temp = QLabel(tr("Temperature"))
-    cpu_lbl_temp.setObjectName("MonitorLabel")
-    cpu_l.addWidget(cpu_lbl_temp, 2, 0)
-    gui.pb_cput = QProgressBar()
-    gui.pb_cput.setFixedHeight(8)
-    gui.pb_cput.setRange(0, 100)
-    cpu_l.addWidget(gui.pb_cput, 2, 1)
-    gui.lbl_cpu_temp = QLabel("0.0 °C")
-    gui.lbl_cpu_temp.setAlignment(
-        Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-    )
-    cpu_l.addWidget(gui.lbl_cpu_temp, 2, 2)
+    return cpu_w
 
-    cpu_lbl_fan = QLabel(tr("Fan"))
-    cpu_lbl_fan.setObjectName("MonitorLabel")
-    cpu_l.addWidget(cpu_lbl_fan, 3, 0)
-    gui.pb_cpuf = QProgressBar()
-    gui.pb_cpuf.setFixedHeight(8)
-    gui.pb_cpuf.setRange(0, 5000)
-    cpu_l.addWidget(gui.pb_cpuf, 3, 1)
-    gui.lbl_cpu_fan = QLabel("— RPM")
-    gui.lbl_cpu_fan.setAlignment(
-        Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-    )
-    cpu_l.addWidget(gui.lbl_cpu_fan, 3, 2)
 
-    dash_layout.addWidget(cpu_w)
-
-    # GPU
+def _build_gpu_monitor(gui):
     gpu_w = QWidget()
     gpu_l = QGridLayout(gpu_w)
     gpu_l.setContentsMargins(0, 0, 0, 0)
     gpu_l.setVerticalSpacing(18)
+
     gpu_title = QLabel(tr("GPU"))
     gpu_title.setObjectName("MonitorTitle")
     gpu_l.addWidget(gpu_title, 0, 0, 1, 3)
 
-    gpu_lbl_util = QLabel(tr("Utilization"))
-    gpu_lbl_util.setObjectName("MonitorLabel")
-    gpu_l.addWidget(gpu_lbl_util, 1, 0)
-    gui.pb_gpu = QProgressBar()
-    gui.pb_gpu.setFixedHeight(8)
-    gui.pb_gpu.setRange(0, 100)
-    gpu_l.addWidget(gui.pb_gpu, 1, 1)
-    gui.lbl_gpu_util = QLabel("0.0%")
-    gui.lbl_gpu_util.setAlignment(
+    _add_monitor_row(gui, gpu_l, 1, "pb_gpu", "lbl_gpu_util", tr("Utilization"), "0.0%", 100)
+    _add_monitor_row(gui, gpu_l, 2, "pb_gput", "lbl_gpu_temp", tr("Temperature"), "0.0 °C", 100)
+    _add_monitor_row(gui, gpu_l, 3, "pb_gpuf", "lbl_gpu_fan", tr("Fan"), "— RPM", 5000)
+
+    return gpu_w
+
+
+def _add_monitor_row(gui, grid, row, pb_attr, lbl_attr, label_text, initial, max_val):
+    lbl = QLabel(label_text)
+    lbl.setObjectName("MonitorLabel")
+    grid.addWidget(lbl, row, 0)
+
+    pb = QProgressBar()
+    pb.setFixedHeight(10)
+    pb.setRange(0, max_val)
+    setattr(gui, pb_attr, pb)
+    grid.addWidget(pb, row, 1)
+
+    val_lbl = QLabel(initial)
+    val_lbl.setAlignment(
         Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
     )
-    gpu_l.addWidget(gui.lbl_gpu_util, 1, 2)
+    setattr(gui, lbl_attr, val_lbl)
+    grid.addWidget(val_lbl, row, 2)
 
-    gpu_lbl_temp = QLabel(tr("Temperature"))
-    gpu_lbl_temp.setObjectName("MonitorLabel")
-    gpu_l.addWidget(gpu_lbl_temp, 2, 0)
-    gui.pb_gput = QProgressBar()
-    gui.pb_gput.setFixedHeight(8)
-    gui.pb_gput.setRange(0, 100)
-    gpu_l.addWidget(gui.pb_gput, 2, 1)
-    gui.lbl_gpu_temp = QLabel("0.0 °C")
-    gui.lbl_gpu_temp.setAlignment(
-        Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-    )
-    gpu_l.addWidget(gui.lbl_gpu_temp, 2, 2)
 
-    gpu_lbl_fan = QLabel(tr("Fan"))
-    gpu_lbl_fan.setObjectName("MonitorLabel")
-    gpu_l.addWidget(gpu_lbl_fan, 3, 0)
-    gui.pb_gpuf = QProgressBar()
-    gui.pb_gpuf.setFixedHeight(8)
-    gui.pb_gpuf.setRange(0, 5000)
-    gpu_l.addWidget(gui.pb_gpuf, 3, 1)
-    gui.lbl_gpu_fan = QLabel("— RPM")
-    gui.lbl_gpu_fan.setAlignment(
-        Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-    )
-    gpu_l.addWidget(gui.lbl_gpu_fan, 3, 2)
+def _build_quick_controls(gui):
+    container = QWidget()
+    cl = QVBoxLayout(container)
+    cl.setContentsMargins(0, 0, 0, 0)
 
-    dash_layout.addWidget(gpu_w)
-    layout.addWidget(dash_group)
-
-    # ── Quick Controls ───────────────────────────────────────────────
     lbl_qc = QLabel(tr("Quick Controls"))
     lbl_qc.setObjectName("SectionTitle")
-    layout.addWidget(lbl_qc)
+    cl.addWidget(lbl_qc)
 
     pm = QComboBox()
     pm.addItems(["Quiet", "Balance", "Performance"])
@@ -138,7 +105,7 @@ def create_dashboard_page(gui):
     gui.rows['power_dash'] = create_row(
         tr("Power Mode"), tr("Power Mode subtitle"), pm
     )
-    layout.addWidget(gui.rows['power_dash'])
+    cl.addWidget(gui.rows['power_dash'])
 
     gm = QComboBox()
     gm.addItems(["Hybrid", "Integrated", "Dedicated"])
@@ -147,7 +114,7 @@ def create_dashboard_page(gui):
     gui.rows['gpu_dash'] = create_row(
         tr("GPU Working Mode"), tr("GPU Working Mode subtitle"), gm
     )
-    layout.addWidget(gui.rows['gpu_dash'])
+    cl.addWidget(gui.rows['gpu_dash'])
 
     fm = QComboBox()
     fm.addItems(["Standard", "Super Silent", "Dust Cleaning", "Performance"])
@@ -156,10 +123,9 @@ def create_dashboard_page(gui):
     gui.rows['fan_dash'] = create_row(
         tr("Active Cooling Policy"), tr("Active Cooling Policy subtitle"), fm
     )
-    layout.addWidget(gui.rows['fan_dash'])
+    cl.addWidget(gui.rows['fan_dash'])
 
-    layout.addStretch()
-    return page
+    return container
 
 
 def get_laptop_model():

@@ -1,7 +1,7 @@
 """D-Bus client wrapper for talking to vantageservice.
 
-If the service is not running, the wrapper falls back to a "limited mode"
-that lets the GUI open but disables all hardware-control actions.
+Falls back to "limited mode" if the service is unavailable, letting the
+GUI open but disabling all hardware-control actions.
 """
 
 try:
@@ -12,14 +12,6 @@ except ImportError:
 
 
 class VantageService:
-    """Thin wrapper around the org.lenovo.Vantage D-Bus interface.
-
-    On success, ``self.iface`` is a live dbus.Interface and
-    ``self.limited`` is False.  If the service is unreachable,
-    ``self.iface`` is None and ``self.limited`` is True — the GUI
-    can still open but all hardware calls are no-ops.
-    """
-
     def __init__(self):
         self.iface = None
         self.limited = False

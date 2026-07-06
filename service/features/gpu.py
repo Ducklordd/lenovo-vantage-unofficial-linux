@@ -1,12 +1,14 @@
 import subprocess
 import shutil
 
+
 def detect_capabilities() -> dict:
     if shutil.which("supergfxctl"):
         return {"supported": True, "partial": False, "reason": "supergfxctl available", "tool": "supergfxctl"}
     elif shutil.which("optimus-manager"):
         return {"supported": True, "partial": True, "reason": "optimus-manager available", "tool": "optimus-manager"}
     return {"supported": False, "partial": False, "reason": "No GPU management tool found", "tool": None}
+
 
 def get_dgpu_mode() -> str:
     caps = detect_capabilities()
@@ -16,11 +18,15 @@ def get_dgpu_mode() -> str:
     elif caps["tool"] == "optimus-manager":
         res = subprocess.run(["optimus-manager", "--print-mode"], capture_output=True, text=True)
         mode = res.stdout.strip().lower()
-        if "hybrid" in mode: return "hybrid"
-        if "nvidia" in mode: return "dedicated"
-        if "integrated" in mode: return "integrated"
+        if "hybrid" in mode:
+            return "hybrid"
+        if "nvidia" in mode:
+            return "dedicated"
+        if "integrated" in mode:
+            return "integrated"
         return "unknown"
     return "disabled"
+
 
 def set_dgpu_mode(mode: str) -> None:
     caps = detect_capabilities()

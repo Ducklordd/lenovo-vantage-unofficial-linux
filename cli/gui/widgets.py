@@ -2,9 +2,10 @@
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,
-    QScrollArea, QSizePolicy,
+    QScrollArea, QSizePolicy, QComboBox, QSpinBox, QCheckBox,
+    QPushButton,
 )
-from PyQt6.QtGui import QCursor
+from PyQt6.QtGui import QCursor, QFontMetrics
 from PyQt6.QtCore import Qt
 
 
@@ -33,7 +34,6 @@ def create_row(title, subtitle, widget, tooltip="", obj_name="SettingsRow"):
         lbl_sub.setObjectName("RowSubtitle")
         lbl_sub.setWordWrap(False)
         lbl_sub.setTextFormat(Qt.TextFormat.PlainText)
-        lbl_sub.setFixedHeight(16)
         lbl_sub.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
@@ -53,9 +53,18 @@ def create_row(title, subtitle, widget, tooltip="", obj_name="SettingsRow"):
 
 
 def set_row_state(row, enabled):
-    row.setEnabled(enabled)
+    """Disable only interactive widgets, not labels.
+
+    Cascading Qt's disabled state to QLabel children overrides QSS color
+    rules and makes enabled cards look dimmed. Instead we set a custom
+    property and disable only the input widgets.
+    """
+    row.setProperty("rowDisabled", not enabled)
     for child in row.findChildren(QWidget):
-        child.setEnabled(enabled)
+        if isinstance(child, (QComboBox, QSpinBox, QCheckBox, QPushButton)):
+            child.setEnabled(enabled)
+    row.style().unpolish(row)
+    row.style().polish(row)
 
 
 def create_scroll_page(title):

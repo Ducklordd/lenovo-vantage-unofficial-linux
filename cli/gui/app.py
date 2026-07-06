@@ -1,11 +1,8 @@
-#!/usr/bin/env python3
 """Entry point for Vantage GUI."""
 
 import sys
 import os
 
-# Ensure the cli/ directory is on sys.path so that top-level modules like
-# i18n are importable regardless of which directory Python was started from.
 _CLI_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _CLI_DIR not in sys.path:
     sys.path.insert(0, _CLI_DIR)
@@ -36,16 +33,13 @@ def main():
     if os.path.exists(icon_path):
         app.setWindowIcon(QIcon(icon_path))
 
-    # ── Single-instance lock ───────────────────────────────────────
     tmp_dir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.TempLocation)
     lock_path = os.path.join(tmp_dir, f"vantage-gui-{os.getuid()}.lock")
     lock = QLockFile(lock_path)
     lock.setStaleLockTime(0)
     if not lock.tryLock(100):
-        # Another instance is already running — nothing to do, just exit.
         sys.exit(0)
 
-    # ── First-run language selection ───────────────────────────────
     if is_first_run():
         detected = detect_system_theme()
         save_theme(detected)
@@ -59,7 +53,6 @@ def main():
     else:
         set_locale(load_locale())
 
-    # ── Connect to D-Bus service (limited mode if unavailable) ─────
     svc = VantageService()
     if svc.limited:
         QMessageBox.warning(None, tr("Service Error"), tr("Service Error"))

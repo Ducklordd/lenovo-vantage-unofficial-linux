@@ -7,6 +7,7 @@ from pathlib import Path
 CONFIG_DIR = "/etc/lenovo-vantage"
 CONFIG_FILE = os.path.join(CONFIG_DIR, "automation.json")
 
+
 class AutomationEngine:
     def __init__(self, service):
         self.service = service
@@ -21,10 +22,7 @@ class AutomationEngine:
                 return json.loads(Path(CONFIG_FILE).read_text())
         except Exception as e:
             print(f"Failed to load automation rules: {e}")
-        return {
-            "on_ac_connect": {},
-            "on_ac_disconnect": {}
-        }
+        return {"on_ac_connect": {}, "on_ac_disconnect": {}}
 
     def save_rules(self, rules):
         try:
@@ -44,26 +42,29 @@ class AutomationEngine:
                         pass
         except Exception:
             pass
-        return True # Default assume AC if unknown
+        return True
 
     def apply_rule(self, rule_name):
         rule = self.rules.get(rule_name, {})
         print(f"Applying automation rule: {rule_name} -> {rule}")
         if "power_mode" in rule:
-            try: 
+            try:
                 from features.power import set_power_mode
                 set_power_mode(rule["power_mode"])
-            except Exception as e: print(f"Auto-Power error: {e}")
+            except Exception as e:
+                print(f"Auto-Power error: {e}")
         if "fan_mode" in rule:
-            try: 
+            try:
                 from features.fan import set_fan_mode
                 set_fan_mode(rule["fan_mode"])
-            except Exception as e: print(f"Auto-Fan error: {e}")
+            except Exception as e:
+                print(f"Auto-Fan error: {e}")
         if "gpu_mode" in rule:
-            try: 
+            try:
                 from features.gpu import set_dgpu_mode
                 set_dgpu_mode(rule["gpu_mode"])
-            except Exception as e: print(f"Auto-GPU error: {e}")
+            except Exception as e:
+                print(f"Auto-GPU error: {e}")
 
     def _monitor_loop(self):
         while self.running:
@@ -79,7 +80,6 @@ class AutomationEngine:
     def start(self):
         if not Path(CONFIG_FILE).exists():
             self.save_rules(self.rules)
-            
         self.running = True
         self.thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self.thread.start()
