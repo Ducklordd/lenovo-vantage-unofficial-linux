@@ -5,11 +5,12 @@ import os
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QFrame, QStackedWidget, QButtonGroup, QMessageBox, QScrollArea,
+    QSystemTrayIcon, QMenu, QApplication,
 )
 from PyQt6.QtGui import QIcon, QShortcut, QKeySequence
 from PyQt6.QtCore import QTimer, Qt
 
-from i18n import tr, load_theme, save_theme
+from i18n import tr, load_theme, save_theme, load_tray, save_tray
 from gui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from gui.widgets import set_row_state
 from gui.pages.dashboard import create_dashboard_page, get_laptop_model
@@ -198,11 +199,92 @@ class VantageGUI(QMainWindow):
         self._apply_theme(self.current_theme)
         self.load_state()
 
+        # ── System Tray ───────────────────────────────────────────────
+        self._init_tray()
+
         # Sensor timer
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_sensors)
         self.timer.start(2000)
         self.update_sensors()
+
+    # ── System Tray ────────────────────────────────────────────────────
+    def _init_tray(self):
+        self.tray_icon = None
+        self.tray_enabled = False
+        self.tray_available = QSystemTrayIcon.isSystemTrayAvailable()
+
+        if not self.tray_available:
+            return
+
+        icon_path = self._get_icon_path()
+        tray_icon = QIcon(icon_path) if icon_path else QIcon()
+
+        self.tray_icon = QSystemTrayIcon(tray_icon, self)
+        self.tray_icon.setToolTip(tr("Tray Tooltip"))
+
+        menu = QMenu()
+        show_action = menu.addAction(tr("Tray Show"))
+        show_action.triggered.connect(self._tray_show)
+        menu.addSeparator()
+        quit_action = menu.addAction(tr("Tray Quit"))
+        quit_action.triggered.connect(self._tray_quit)
+        self.tray_menu = menu
+
+        self.tray_icon.setContextMenu(menu)
+        self.tray_icon.activated.connect(self._on_tray_activated)
+
+        if load_tray():
+            self.tray_enabled = True
+            self.tray_icon.show()
+
+    def _get_icon_path(self):
+        import os
+        for p in [
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "icon.png"),
+            "/usr/lib/vantage/icon.png",
+            "/usr/share/icons/hicolor/scalable/apps/vantage.png",
+        ]:
+            if os.path.exists(p):
+                return p
+        return None
+
+    def _on_tray_activated(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            self._tray_show()
+
+    def _tray_show(self):
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def _tray_quit(self):
+        if self.tray_icon:
+            self.tray_icon.hide()
+        QApplication.instance().quit()
+
+    def set_tray_enabled(self, enabled):
+        if not self.tray_available or not self.tray_icon:
+            return
+        self.tray_enabled = enabled
+        if enabled:
+            self.tray_icon.show()
+        else:
+            self.tray_icon.hide()
+        save_tray(enabled)
+
+    def closeEvent(self, event):
+        if self.tray_enabled and self.tray_icon:
+            event.ignore()
+            self.hide()
+            self.tray_icon.showMessage(
+                tr("Tray Tooltip"),
+                tr("System Tray subtitle"),
+                QSystemTrayIcon.MessageIcon.Information,
+                2000,
+            )
+        else:
+            event.accept()
 
     # ── Navigation ────────────────────────────────────────────────────
     def switch_tab(self, idx):

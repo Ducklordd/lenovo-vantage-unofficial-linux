@@ -50,6 +50,9 @@ do_install() {
     mkdir -p "$INSTALL_DIR/service/features" "$INSTALL_DIR/service/ipc" "$INSTALL_DIR/cli/gui/pages"
     cp -r service/* "$INSTALL_DIR/service/"
     cp -r cli/*   "$INSTALL_DIR/cli/"
+    if [ -f "icon.png" ]; then
+        cp icon.png "$INSTALL_DIR/"
+    fi
     chmod +x "$INSTALL_DIR/service/vantageservice.py"
     chmod +x "$INSTALL_DIR/cli/vantage-gui.py"
     chmod +x "$INSTALL_DIR/cli/vantage-cli.py"
@@ -66,8 +69,8 @@ do_install() {
     echo "Installing desktop entry and icon ..."
     mkdir -p "$APP_DIR" "$ICON_DIR"
     cp vantage.desktop "$APP_DIR/"
-    if [ -f "vantage.png" ]; then
-        cp vantage.png "$ICON_DIR/"
+    if [ -f "icon.png" ]; then
+        cp icon.png "$ICON_DIR/vantage.png"
     fi
 
     echo "Creating CLI / GUI launchers ..."

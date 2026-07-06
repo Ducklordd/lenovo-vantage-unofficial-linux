@@ -1,9 +1,10 @@
-"""Settings page — language, theme, autorun, boot logo."""
+"""Settings page — language, theme, tray, autorun, boot logo."""
 
-from PyQt6.QtWidgets import QComboBox, QLabel, QMessageBox
+from PyQt6.QtWidgets import QComboBox, QLabel, QMessageBox, QCheckBox
+from PyQt6.QtCore import Qt
 
 from i18n import (
-    tr, save_locale, set_locale, get_locale, save_theme,
+    tr, save_locale, set_locale, get_locale, save_theme, load_tray,
 )
 from gui.widgets import create_row, create_scroll_page, set_row_state
 
@@ -44,6 +45,22 @@ def create_settings_page(gui):
     lbl_beh.setObjectName("SectionTitle")
     layout.addWidget(lbl_beh)
 
+    # ── System Tray toggle ─────────────────────────────────────────
+    tray_check = QCheckBox()
+    tray_check.setChecked(load_tray())
+    if not gui.tray_available:
+        tray_check.setEnabled(False)
+        tray_check.setChecked(False)
+    tray_check.toggled.connect(
+        lambda checked: gui.set_tray_enabled(checked)
+    )
+    tray_row = create_row(
+        tr("System Tray"), tr("System Tray subtitle"), tray_check
+    )
+    if not gui.tray_available:
+        set_row_state(tray_row, False)
+    layout.addWidget(tray_row)
+
     autorun = QComboBox()
     autorun.addItems(["Off"])
     autorun.setEnabled(False)
@@ -75,7 +92,6 @@ def _on_language_changed(gui, index):
         save_locale("en")
         set_locale("en")
     QMessageBox.information(gui, tr("Language"), tr("Language subtitle"))
-    # Restart the app so the new locale takes effect everywhere
     import sys, subprocess
     subprocess.Popen([sys.executable] + sys.argv)
     gui.close()

@@ -23,9 +23,11 @@ def main():
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
 
     app = QApplication(sys.argv)
-    app.setWindowIcon(
-        QIcon("/usr/share/icons/hicolor/scalable/apps/vantage.png")
-    )
+    icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "icon.png")
+    if not os.path.exists(icon_path):
+        icon_path = "/usr/lib/vantage/icon.png"
+    if os.path.exists(icon_path):
+        app.setWindowIcon(QIcon(icon_path))
 
     # ── First-run language selection ───────────────────────────────
     if is_first_run():

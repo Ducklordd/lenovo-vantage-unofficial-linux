@@ -106,6 +106,11 @@ _STRINGS_EN = {
     "Autorun subtitle": "Start with system.",
     "Boot Logo": "Boot Logo",
     "Boot Logo subtitle": "UEFI boot logo. Not implemented.",
+    "System Tray": "Minimize to Tray",
+    "System Tray subtitle": "Keep running in background when closed.",
+    "Tray Show": "Show",
+    "Tray Quit": "Quit",
+    "Tray Tooltip": "Lenovo Vantage Linux",
 
     # ── About ──────────────────────────────────────────────────────
     "About app title": "Lenovo Vantage Linux Unofficial",
@@ -236,6 +241,11 @@ _STRINGS_RU = {
     "Autorun subtitle": "Запуск вместе с системой.",
     "Boot Logo": "Логотип загрузки",
     "Boot Logo subtitle": "Логотип UEFI. Не реализовано.",
+    "System Tray": "Сворачивать в трей",
+    "System Tray subtitle": "Программа остаётся в фоне при закрытии.",
+    "Tray Show": "Развернуть",
+    "Tray Quit": "Выход",
+    "Tray Tooltip": "Lenovo Vantage Linux",
 
     # ── About ──────────────────────────────────────────────────────
     "About app title": "Lenovo Vantage Linux (неофициальный)",
@@ -347,6 +357,30 @@ def save_theme(theme: str) -> None:
 def is_first_run() -> bool:
     """Return True if no config file exists yet (language not chosen)."""
     return not _CONFIG_FILE.exists()
+
+
+def load_tray() -> bool:
+    """Return True if minimize-to-tray is enabled (default: True)."""
+    try:
+        if _CONFIG_FILE.exists():
+            data = json.loads(_CONFIG_FILE.read_text())
+            return data.get("tray", True)
+    except Exception:
+        pass
+    return True
+
+
+def save_tray(enabled: bool) -> None:
+    """Persist the tray preference to the config file."""
+    try:
+        _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        data = {}
+        if _CONFIG_FILE.exists():
+            data = json.loads(_CONFIG_FILE.read_text())
+        data["tray"] = enabled
+        _CONFIG_FILE.write_text(json.dumps(data, indent=2))
+    except Exception:
+        pass
 
 
 def tr(key: str) -> str:
