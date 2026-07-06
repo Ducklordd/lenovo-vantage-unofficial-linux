@@ -1,13 +1,14 @@
 [Unit]
 Description=Lenovo Vantage Linux Service
 After=dbus.service
+Requires=dbus.service
 
 [Service]
-Type=dbus
-BusName=org.lenovo.Vantage
+Type=simple
 ExecStart=/usr/lib/vantage/service/vantageservice.py
 User=root
 Restart=on-failure
+RestartSec=3
 
 [Install]
 WantedBy=multi-user.target

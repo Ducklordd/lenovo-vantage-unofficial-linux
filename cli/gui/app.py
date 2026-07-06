@@ -4,6 +4,12 @@
 import sys
 import os
 
+# Ensure the cli/ directory is on sys.path so that top-level modules like
+# i18n are importable regardless of which directory Python was started from.
+_CLI_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _CLI_DIR not in sys.path:
+    sys.path.insert(0, _CLI_DIR)
+
 from PyQt6.QtWidgets import QApplication, QMessageBox, QDialog
 from PyQt6.QtGui import QIcon
 

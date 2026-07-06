@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 import sys
 import argparse
-import dbus
 import json
+
+try:
+    import dbus
+except ImportError:
+    print("Error: python3-dbus is not installed. Install it with your package manager.")
+    print("  Debian/Ubuntu: sudo apt install python3-dbus")
+    print("  Fedora:        sudo dnf install python3-dbus")
+    print("  Arch:          sudo pacman -S python-dbus")
+    sys.exit(1)
 
 def get_service():
     try:

@@ -26,7 +26,10 @@ def get_battery_info():
         "percent": "N/A", "status": "N/A", "health": "N/A",
         "cycles": "N/A", "current": "N/A", "full": "N/A", "design": "N/A",
     }
-    for bat in os.listdir("/sys/class/power_supply/"):
+    psu_root = "/sys/class/power_supply"
+    if not os.path.isdir(psu_root):
+        return info
+    for bat in os.listdir(psu_root):
         if bat.startswith("BAT"):
             path = f"/sys/class/power_supply/{bat}"
             try:
@@ -467,7 +470,7 @@ class VantageGUI(QMainWindow):
             self.apply_cap(self.rows.get('fan_dash'), caps.get("fan", {}))
             self.apply_cap(self.rows.get('fan_main'), caps.get("fan", {}))
 
-            self.apply_cap(self.rows.get('tdp'), caps.get("ryzenadj", {}), "Missing ryzenadj binary.")
+            self.apply_cap(self.rows.get('tdp'), caps.get("overclock", {}), "Missing ryzenadj binary.")
         except Exception:
             pass
 

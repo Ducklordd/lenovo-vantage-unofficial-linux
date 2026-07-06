@@ -4,7 +4,11 @@ If the service is not running, the wrapper falls back to a "limited mode"
 that lets the GUI open but disables all hardware-control actions.
 """
 
-import dbus
+try:
+    import dbus
+    _DBUS_AVAILABLE = True
+except ImportError:
+    _DBUS_AVAILABLE = False
 
 
 class VantageService:
@@ -19,6 +23,9 @@ class VantageService:
     def __init__(self):
         self.iface = None
         self.limited = False
+        if not _DBUS_AVAILABLE:
+            self.limited = True
+            return
         try:
             bus = dbus.SystemBus()
             obj = bus.get_object("org.lenovo.Vantage", "/org/lenovo/Vantage")
